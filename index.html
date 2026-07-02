@@ -1,7 +1,13 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+
 <!-- Groß-/Kleinschreibung-Korrektur-Tool -->
 <!-- Wandelt komplett großgeschriebenen Kundentext in korrekte deutsche Groß-/Kleinschreibung um -->
 <!-- Style: Lake Studio Dark Theme (DM Serif Display / DM Sans) -->
 
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Text Tools</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -24,11 +30,29 @@
 		--radius: 10px;
 	}
 
-	html, body {
-		background: #1a1d23;
+	html {
+		min-height: 100%;
+	}
+
+	body {
+		background: var( --bg );
 		margin: 0;
 		min-height: 100%;
 		font-family: 'DM Sans', system-ui, sans-serif;
+		position: relative;
+	}
+
+	body::before {
+		content: '';
+		position: fixed;
+		inset: 0;
+		z-index: -1;
+		background-image:
+			linear-gradient( to right, rgba( 255, 255, 255, 0.04 ) 1px, transparent 1px ),
+			linear-gradient( to bottom, rgba( 255, 255, 255, 0.04 ) 1px, transparent 1px );
+		background-size: 24px 24px;
+		mask-image: radial-gradient( ellipse at center, transparent, var( --bg ) );
+		-webkit-mask-image: radial-gradient( ellipse at center, transparent, var( --bg ) );
 	}
 
 	.cf-tool {
@@ -417,6 +441,9 @@
 	}
 
 </style>
+
+</head>
+<body>
 
 <div class="cf-tool">
 
@@ -991,3 +1018,6 @@
 	})();
 
 </script>
+
+</body>
+</html>
