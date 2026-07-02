@@ -10,13 +10,7 @@
 
 <style>
 
-	html, body {
-		background: #1a1d23;
-		margin: 0;
-		min-height: 100%;
-	}
-
-	.cf-tool {
+	:root {
 		--bg: #1a1d23;
 		--surface: #22262e;
 		--surface-2: #2a2f39;
@@ -28,13 +22,21 @@
 		--text: #e8eaf0;
 		--text-dim: #8a909e;
 		--radius: 10px;
+	}
 
+	html, body {
+		background: #1a1d23;
+		margin: 0;
+		min-height: 100%;
+	}
+
+	.cf-tool {
 		max-width: 860px;
 		margin: 0 auto;
 		background: var( --bg );
 		color: var( --text );
 		font-family: 'DM Sans', system-ui, sans-serif;
-		padding: 32px 16px 40px;
+		padding: 32px 16px 50vh;
 		border-radius: var( --radius );
 	}
 
@@ -60,13 +62,108 @@
 		margin: 0;
 	}
 
+	.cf-tab-bar {
+		position: sticky;
+		top: 0;
+		z-index: 50;
+		background: var( --bg );
+		padding: 12px 0;
+		display: flex;
+		gap: 8px;
+		margin: 0 0 32px;
+	}
+
+	.cf-tab-btn {
+		flex: 1;
+		padding: 8px 4px;
+		border-radius: 8px;
+		border: 1px solid var( --border );
+		background: var( --surface );
+		color: var( --text-dim );
+		font-family: 'DM Sans', system-ui, sans-serif;
+		font-size: 0.78rem;
+		font-weight: 500;
+		cursor: pointer;
+		text-align: center;
+		transition: all 0.15s ease;
+		white-space: nowrap;
+	}
+
+	.cf-tab-btn.is-active {
+		background: var( --accent-dim );
+		border-color: var( --accent );
+		color: var( --accent );
+		font-weight: 600;
+	}
+
 	.cf-section-header {
 		margin-top: 40px;
 		margin-bottom: 20px;
+		scroll-margin-top: 80px;
 	}
 
-	.cf-page-header + .cf-section-header {
+	.cf-page-header + .cf-tab-bar + .cf-section-header {
 		margin-top: 0;
+	}
+
+	.cf-scroll-nav {
+		position: fixed;
+		right: 24px;
+		top: 50%;
+		transform: translateY( -50% );
+		display: flex;
+		flex-direction: column;
+		gap: 8px;
+		z-index: 100;
+	}
+
+	.cf-scroll-nav__item {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		cursor: pointer;
+		text-decoration: none;
+		justify-content: flex-end;
+	}
+
+	.cf-scroll-nav__label {
+		font-size: 0.75rem;
+		color: var( --text-dim );
+		opacity: 0;
+		transition: opacity 0.2s ease;
+		white-space: nowrap;
+	}
+
+	.cf-scroll-nav__item:hover .cf-scroll-nav__label {
+		opacity: 1;
+	}
+
+	.cf-scroll-nav__dot {
+		width: 8px;
+		height: 8px;
+		border-radius: 50%;
+		background: var( --border );
+		transition: background 0.2s ease, transform 0.2s ease;
+		flex-shrink: 0;
+	}
+
+	.cf-scroll-nav__item:hover .cf-scroll-nav__dot,
+	.cf-scroll-nav__item.is-active .cf-scroll-nav__dot {
+		background: var( --accent );
+		transform: scale( 1.4 );
+	}
+
+	.cf-scroll-nav__item.is-active .cf-scroll-nav__label {
+		opacity: 1;
+		color: var( --accent );
+	}
+
+	@media ( max-width: 1100px ) {
+
+		.cf-scroll-nav {
+			display: none;
+		}
+
 	}
 
 	.cf-section-header h2 {
@@ -307,6 +404,15 @@
 			width: 100%;
 		}
 
+		.cf-tab-bar {
+			gap: 6px;
+		}
+
+		.cf-tab-btn {
+			font-size: 0.7rem;
+			padding: 8px 2px;
+		}
+
 	}
 
 </style>
@@ -318,7 +424,12 @@
 		<p>Sammlung praktischer Werkzeuge für Texte – Korrektur, Umwandlung und mehr</p>
 	</div><!-- end .cf-page-header -->
 
-	<div class="cf-section-header">
+	<div class="cf-tab-bar">
+		<button type="button" class="cf-tab-btn js-tab-btn" data-target="section-textkorrektur">Textkorrektur</button>
+		<button type="button" class="cf-tab-btn js-tab-btn" data-target="section-pdf-clean">PDF-Text bereinigen</button>
+	</div><!-- end .cf-tab-bar -->
+
+	<div class="cf-section-header js-nav-section" id="section-textkorrektur">
 		<h2>Textkorrektur</h2>
 		<p>Kundentext auf Grammatik, Rechtschreibung und Groß-/Kleinschreibung prüfen</p>
 	</div><!-- end .cf-section-header -->
@@ -402,7 +513,7 @@
 
 	</div><!-- end .cf-actions -->
 
-	<div class="cf-section-header">
+	<div class="cf-section-header js-nav-section" id="section-pdf-clean">
 		<h2>PDF-Text bereinigen</h2>
 		<p>Zeilenumbrüche aus PDF-Kopien entfernen, getrennte Wörter zusammenführen und Umlaute korrigieren</p>
 	</div><!-- end .cf-section-header -->
@@ -459,6 +570,20 @@
 	</div><!-- end .cf-actions -->
 
 </div><!-- end .cf-tool -->
+
+<nav class="cf-scroll-nav" aria-label="Sektionsnavigation">
+
+	<a class="cf-scroll-nav__item js-nav-item" href="#section-textkorrektur" data-target="section-textkorrektur" aria-label="Zu Textkorrektur springen">
+		<span class="cf-scroll-nav__label">Textkorrektur</span>
+		<span class="cf-scroll-nav__dot"></span>
+	</a>
+
+	<a class="cf-scroll-nav__item js-nav-item" href="#section-pdf-clean" data-target="section-pdf-clean" aria-label="Zu PDF-Text bereinigen springen">
+		<span class="cf-scroll-nav__label">PDF-Text bereinigen</span>
+		<span class="cf-scroll-nav__dot"></span>
+	</a>
+
+</nav><!-- end .cf-scroll-nav -->
 
 <style>
 
@@ -794,6 +919,71 @@
 				pwStatus.setAttribute( 'data-state', 'error' );
 
 			}
+
+		});
+
+	})();
+
+</script>
+
+<script>
+
+	( function() {
+
+		const navSections = document.querySelectorAll( '.js-nav-section' );
+		const navItems = document.querySelectorAll( '.js-nav-item' );
+		const tabBtns = document.querySelectorAll( '.js-tab-btn' );
+
+		const setActive = ( id ) => {
+
+			navItems.forEach( ( item ) => {
+
+				item.classList.toggle( 'is-active', item.dataset.target === id );
+
+			});
+
+			tabBtns.forEach( ( btn ) => {
+
+				btn.classList.toggle( 'is-active', btn.dataset.target === id );
+
+			});
+
+		};
+
+		const observer = new IntersectionObserver( ( entries ) => {
+
+			entries.forEach( ( entry ) => {
+
+				if ( entry.isIntersecting ) setActive( entry.target.id );
+
+			});
+
+		}, { rootMargin: '-10% 0px -60% 0px', threshold: 0 });
+
+		navSections.forEach( ( section ) => observer.observe( section ) );
+
+		tabBtns.forEach( ( btn ) => {
+
+			btn.addEventListener( 'click', () => {
+
+				setActive( btn.dataset.target );
+				const target = document.getElementById( btn.dataset.target );
+				target?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+			});
+
+		});
+
+		navItems.forEach( ( item ) => {
+
+			item.addEventListener( 'click', ( e ) => {
+
+				e.preventDefault();
+				setActive( item.dataset.target );
+				const target = document.getElementById( item.dataset.target );
+				target?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+			});
 
 		});
 
