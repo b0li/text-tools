@@ -2,7 +2,7 @@
 <!-- Wandelt komplett großgeschriebenen Kundentext in korrekte deutsche Groß-/Kleinschreibung um -->
 <!-- Style: Lake Studio Dark Theme (DM Serif Display / DM Sans) -->
 
-<title>Textkorrektur</title>
+<title>Text Tools</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -42,11 +42,11 @@
 		box-sizing: border-box;
 	}
 
-	.cf-header {
+	.cf-page-header {
 		margin-bottom: 32px;
 	}
 
-	.cf-header h1 {
+	.cf-page-header h1 {
 		font-family: 'DM Serif Display', serif;
 		font-weight: 400;
 		font-size: 2rem;
@@ -54,8 +54,26 @@
 		margin: 0 0 4px;
 	}
 
-	.cf-header p {
+	.cf-page-header p {
 		font-size: 0.9rem;
+		color: var( --text-dim );
+		margin: 0;
+	}
+
+	.cf-section-header {
+		margin-bottom: 20px;
+	}
+
+	.cf-section-header h2 {
+		font-family: 'DM Serif Display', serif;
+		font-weight: 400;
+		font-size: 1.3rem;
+		color: var( --text );
+		margin: 0 0 4px;
+	}
+
+	.cf-section-header p {
+		font-size: 0.82rem;
 		color: var( --text-dim );
 		margin: 0;
 	}
@@ -290,10 +308,15 @@
 
 <div class="cf-tool">
 
-	<div class="cf-header">
-		<h1>Textkorrektur</h1>
+	<div class="cf-page-header">
+		<h1>Text Tools</h1>
+		<p>Sammlung praktischer Werkzeuge für Texte – Korrektur, Umwandlung und mehr</p>
+	</div><!-- end .cf-page-header -->
+
+	<div class="cf-section-header">
+		<h2>Textkorrektur</h2>
 		<p>Kundentext auf Grammatik, Rechtschreibung und Groß-/Kleinschreibung prüfen</p>
-	</div><!-- end .cf-header -->
+	</div><!-- end .cf-section-header -->
 
 	<div class="cf-key">
 
