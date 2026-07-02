@@ -61,7 +61,12 @@
 	}
 
 	.cf-section-header {
+		margin-top: 40px;
 		margin-bottom: 20px;
+	}
+
+	.cf-page-header + .cf-section-header {
+		margin-top: 0;
 	}
 
 	.cf-section-header h2 {
@@ -397,6 +402,62 @@
 
 	</div><!-- end .cf-actions -->
 
+	<div class="cf-section-header">
+		<h2>PDF-Text bereinigen</h2>
+		<p>Zeilenumbrüche aus PDF-Kopien entfernen, getrennte Wörter zusammenführen und Umlaute korrigieren</p>
+	</div><!-- end .cf-section-header -->
+
+	<div class="cf-columns">
+
+		<div class="cf-col">
+
+			<div class="cf-col__label">
+				<span>PDF-Text</span>
+				<span class="cf-col__count" id="pw-count-in">0 Zeichen</span>
+			</div>
+
+			<label for="pw-input" class="sr-only">Text aus PDF einfügen</label>
+			<textarea
+				id="pw-input"
+				class="cf-textarea"
+				placeholder="Text aus PDF hier einfügen …"
+			></textarea>
+
+		</div><!-- end .cf-col (input) -->
+
+		<div class="cf-col">
+
+			<div class="cf-col__label">
+				<span>Bereinigt</span>
+				<span class="cf-col__count" id="pw-count-out">0 Zeichen</span>
+			</div>
+
+			<div
+				id="pw-output"
+				class="cf-output"
+				data-empty="true"
+				data-placeholder="Ergebnis erscheint hier …"
+				aria-live="polite"
+			></div>
+
+		</div><!-- end .cf-col (output) -->
+
+	</div><!-- end .cf-columns -->
+
+	<div class="cf-actions">
+
+		<button type="button" id="pw-btn-copy" class="btn btn--ghost" disabled>
+			Kopieren
+		</button>
+
+		<button type="button" id="pw-btn-clear" class="btn btn--ghost">
+			Leeren
+		</button>
+
+		<span class="cf-status" id="pw-status" role="status"></span>
+
+	</div><!-- end .cf-actions -->
+
 </div><!-- end .cf-tool -->
 
 <style>
@@ -617,6 +678,120 @@
 			} finally {
 
 				btnConvert.disabled = false;
+
+			}
+
+		});
+
+	})();
+
+</script>
+
+<script>
+
+	( function() {
+
+		const pwInput = document.getElementById( 'pw-input' );
+		const pwOutput = document.getElementById( 'pw-output' );
+		const pwCountIn = document.getElementById( 'pw-count-in' );
+		const pwCountOut = document.getElementById( 'pw-count-out' );
+		const pwBtnCopy = document.getElementById( 'pw-btn-copy' );
+		const pwBtnClear = document.getElementById( 'pw-btn-clear' );
+		const pwStatus = document.getElementById( 'pw-status' );
+
+		function cleanPdfText( raw ) {
+
+			// PDF extraction often yields decomposed umlauts (e.g. "u" + combining diaeresis) - NFC merges them back
+			let text = raw.normalize( 'NFC' );
+
+			text = text.replace( /\r\n?/g, '\n' );
+
+			const paragraphs = text.split( /\n{2,}/ );
+
+			const cleanedParagraphs = paragraphs
+				.map( ( paragraph ) => {
+
+					const lines = paragraph
+						.split( '\n' )
+						.map( ( line ) => line.trim() )
+						.filter( ( line ) => line.length > 0 );
+
+					return lines.reduce( ( acc, line ) => {
+
+						if ( ! acc ) return line;
+
+						// Word was split across the line break with a hyphen - rejoin without hyphen or space
+						if ( /[a-zäöüß]-$/.test( acc ) ) {
+
+							return acc.slice( 0, -1 ) + line;
+
+						}
+
+						return acc + ' ' + line;
+
+					}, '' );
+
+				})
+				.filter( ( paragraph ) => paragraph.length > 0 );
+
+			return cleanedParagraphs.join( '\n\n' );
+
+		}
+
+		function updateCount( el, text ) {
+
+			el.textContent = text.length + ' Zeichen';
+
+		}
+
+		function process() {
+
+			const raw = pwInput.value;
+			updateCount( pwCountIn, raw );
+
+			if ( ! raw.trim() ) {
+
+				pwOutput.textContent = '';
+				pwOutput.setAttribute( 'data-empty', 'true' );
+				updateCount( pwCountOut, '' );
+				pwBtnCopy.disabled = true;
+				return;
+
+			}
+
+			const result = cleanPdfText( raw );
+
+			pwOutput.textContent = result;
+			pwOutput.setAttribute( 'data-empty', 'false' );
+			updateCount( pwCountOut, result );
+			pwBtnCopy.disabled = false;
+
+		}
+
+		pwInput.addEventListener( 'input', process );
+
+		pwBtnClear.addEventListener( 'click', () => {
+
+			pwInput.value = '';
+			process();
+			pwStatus.textContent = '';
+			pwStatus.removeAttribute( 'data-state' );
+			pwInput.focus();
+
+		});
+
+		pwBtnCopy.addEventListener( 'click', async () => {
+
+			try {
+
+				await navigator.clipboard.writeText( pwOutput.textContent );
+				pwStatus.textContent = 'In Zwischenablage kopiert.';
+				pwStatus.setAttribute( 'data-state', 'done' );
+
+			} catch ( err ) {
+
+				pwStatus.textContent = 'Kopieren nicht möglich.';
+				pwStatus.setAttribute( 'data-state', 'error' );
 
 			}
 
