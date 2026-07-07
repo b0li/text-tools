@@ -455,6 +455,7 @@
 	<div class="cf-tab-bar">
 		<button type="button" class="cf-tab-btn js-tab-btn" data-target="section-textkorrektur">Textkorrektur</button>
 		<button type="button" class="cf-tab-btn js-tab-btn" data-target="section-pdf-clean">Textbereinigung</button>
+		<button type="button" class="cf-tab-btn js-tab-btn" data-target="section-case">Groß-/Kleinschreibung</button>
 	</div><!-- end .cf-tab-bar -->
 
 	<div class="cf-section-header js-nav-section" id="section-textkorrektur">
@@ -597,6 +598,70 @@
 
 	</div><!-- end .cf-actions -->
 
+	<div class="cf-section-header js-nav-section" id="section-case">
+		<h2>Groß-/Kleinschreibung</h2>
+		<p>Text komplett in Großbuchstaben oder Kleinbuchstaben umwandeln</p>
+	</div><!-- end .cf-section-header -->
+
+	<div class="cf-columns">
+
+		<div class="cf-col">
+
+			<div class="cf-col__label">
+				<span>Text</span>
+				<span class="cf-col__count" id="cw-count-in">0 Zeichen</span>
+			</div>
+
+			<label for="cw-input" class="sr-only">Text einfügen</label>
+			<textarea
+				id="cw-input"
+				class="cf-textarea"
+				placeholder="Text hier einfügen …"
+			></textarea>
+
+		</div><!-- end .cf-col (input) -->
+
+		<div class="cf-col">
+
+			<div class="cf-col__label">
+				<span>Ergebnis</span>
+				<span class="cf-col__count" id="cw-count-out">0 Zeichen</span>
+			</div>
+
+			<div
+				id="cw-output"
+				class="cf-output"
+				data-empty="true"
+				data-placeholder="Ergebnis erscheint hier …"
+				aria-live="polite"
+			></div>
+
+		</div><!-- end .cf-col (output) -->
+
+	</div><!-- end .cf-columns -->
+
+	<div class="cf-actions">
+
+		<button type="button" id="cw-btn-upper" class="btn btn--accent">
+			GROSSBUCHSTABEN
+		</button>
+
+		<button type="button" id="cw-btn-lower" class="btn btn--accent">
+			kleinbuchstaben
+		</button>
+
+		<button type="button" id="cw-btn-copy" class="btn btn--ghost" disabled>
+			Kopieren
+		</button>
+
+		<button type="button" id="cw-btn-clear" class="btn btn--ghost">
+			Leeren
+		</button>
+
+		<span class="cf-status" id="cw-status" role="status"></span>
+
+	</div><!-- end .cf-actions -->
+
 </div><!-- end .cf-tool -->
 
 <nav class="cf-scroll-nav" aria-label="Sektionsnavigation">
@@ -608,6 +673,11 @@
 
 	<a class="cf-scroll-nav__item js-nav-item" href="#section-pdf-clean" data-target="section-pdf-clean" aria-label="Zu Textbereinigung springen">
 		<span class="cf-scroll-nav__label">Textbereinigung</span>
+		<span class="cf-scroll-nav__dot"></span>
+	</a>
+
+	<a class="cf-scroll-nav__item js-nav-item" href="#section-case" data-target="section-case" aria-label="Zu Groß-/Kleinschreibung springen">
+		<span class="cf-scroll-nav__label">Groß-/Kleinschreibung</span>
 		<span class="cf-scroll-nav__dot"></span>
 	</a>
 
@@ -945,6 +1015,102 @@
 
 				pwStatus.textContent = 'Kopieren nicht möglich.';
 				pwStatus.setAttribute( 'data-state', 'error' );
+
+			}
+
+		});
+
+	})();
+
+</script>
+
+<script>
+
+	( function() {
+
+		const cwInput = document.getElementById( 'cw-input' );
+		const cwOutput = document.getElementById( 'cw-output' );
+		const cwCountIn = document.getElementById( 'cw-count-in' );
+		const cwCountOut = document.getElementById( 'cw-count-out' );
+		const cwBtnUpper = document.getElementById( 'cw-btn-upper' );
+		const cwBtnLower = document.getElementById( 'cw-btn-lower' );
+		const cwBtnCopy = document.getElementById( 'cw-btn-copy' );
+		const cwBtnClear = document.getElementById( 'cw-btn-clear' );
+		const cwStatus = document.getElementById( 'cw-status' );
+
+		function updateCount( el, text ) {
+
+			el.textContent = text.length + ' Zeichen';
+
+		}
+
+		function convert( transform ) {
+
+			const raw = cwInput.value;
+
+			if ( ! raw.trim() ) {
+
+				cwStatus.textContent = 'Bitte zuerst Text einfügen.';
+				cwStatus.setAttribute( 'data-state', 'error' );
+				return;
+
+			}
+
+			const result = transform( raw );
+
+			cwOutput.textContent = result;
+			cwOutput.setAttribute( 'data-empty', 'false' );
+			updateCount( cwCountOut, result );
+			cwBtnCopy.disabled = false;
+			cwStatus.textContent = 'Fertig';
+			cwStatus.setAttribute( 'data-state', 'done' );
+
+		}
+
+		cwInput.addEventListener( 'input', () => {
+
+			updateCount( cwCountIn, cwInput.value );
+
+		});
+
+		cwBtnUpper.addEventListener( 'click', () => {
+
+			convert( ( text ) => text.toUpperCase() );
+
+		});
+
+		cwBtnLower.addEventListener( 'click', () => {
+
+			convert( ( text ) => text.toLowerCase() );
+
+		});
+
+		cwBtnClear.addEventListener( 'click', () => {
+
+			cwInput.value = '';
+			cwOutput.textContent = '';
+			cwOutput.setAttribute( 'data-empty', 'true' );
+			updateCount( cwCountIn, '' );
+			updateCount( cwCountOut, '' );
+			cwBtnCopy.disabled = true;
+			cwStatus.textContent = '';
+			cwStatus.removeAttribute( 'data-state' );
+			cwInput.focus();
+
+		});
+
+		cwBtnCopy.addEventListener( 'click', async () => {
+
+			try {
+
+				await navigator.clipboard.writeText( cwOutput.textContent );
+				cwStatus.textContent = 'In Zwischenablage kopiert.';
+				cwStatus.setAttribute( 'data-state', 'done' );
+
+			} catch ( err ) {
+
+				cwStatus.textContent = 'Kopieren nicht möglich.';
+				cwStatus.setAttribute( 'data-state', 'error' );
 
 			}
 
